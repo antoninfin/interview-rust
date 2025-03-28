@@ -1,4 +1,4 @@
-use crate::models::{Asset, AssetType, Portfolio};
+use crate::models::Portfolio;
 use std::collections::HashMap;
 use uuid::Uuid;
 
@@ -12,11 +12,30 @@ impl Portfolio {
         }
     }
 
-    pub fn buy_asset(&mut self, symbol: String, quantity: f64, price: f64) -> Result<(), String> {
+    pub fn buy_asset(
+        &mut self,
+        _symbol: String,
+        _quantity: f64,
+        _price: f64,
+    ) -> Result<(), String> {
         todo!()
     }
 
     pub fn sell_asset(&mut self, symbol: &str, quantity: f64, price: f64) -> Result<(), String> {
-        todo!()
+        if let Some(asset) = self.assets.get_mut(symbol) {
+            if asset.quantity < quantity {
+                return Err("Insufficient quantity".to_string());
+            }
+
+            asset.quantity -= quantity;
+            self.cash_balance += quantity * price;
+
+            if asset.quantity == 0.0 {
+                self.assets.remove(symbol);
+            }
+            Ok(())
+        } else {
+            Err("Asset not found".to_string())
+        }
     }
 }

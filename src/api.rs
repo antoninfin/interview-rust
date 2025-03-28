@@ -33,11 +33,24 @@ pub struct AssetResponse {
     purchase_price: f64,
 }
 
+#[handler]
 pub async fn get_portfolio() {}
 
+#[handler]
 pub async fn buy_asset() {}
 
-pub async fn sell_asset() {}
+#[handler]
+pub async fn sell_asset(
+    app_state: web::Data<&AppState>,
+    req: web::Json<TradeRequest>,
+) -> Result<&'static str> {
+    let mut portfolio = app_state.portfolio.lock().unwrap();
+
+    match portfolio.sell_asset(&req.symbol, req.quantity, req.price) {
+        Ok(_) => Ok("Sale successful"),
+        Err(e) => Err(poem::Error::from_string(e, StatusCode::BAD_REQUEST)),
+    }
+}
 
 pub(crate) fn build_app(app_state: AppState) -> impl poem::Endpoint {
     use poem::EndpointExt as _;
